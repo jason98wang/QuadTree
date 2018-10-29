@@ -8,7 +8,7 @@ public class Node<T> {
 	private Node<T> TR;
 	private Node<T> BL;
 	private Node<T> BR;
-	private ArrayList<BouncingBall> ballList;
+	ArrayList<BouncingBall> ballList;
 	Rectangle boundingBox;
 	public static boolean subDivided;
 
@@ -22,69 +22,124 @@ public class Node<T> {
 		subDivided = false;
 	}
 
-	
-	@SuppressWarnings("unchecked")
-	public void add(BouncingBall ball) {
-		
-		ballList.add(ball);
-		 
-		if(ballList.size() < BallAssignment.THRESHOLD){
-					
-			if (TL == null) {
-				return;
-			}
-			
-			if(TL.boundingBox.contains(new Point(ball.getX(),ball.getY()))) {
-				TL.add(ball);
-			}
-			
-			if(TR.boundingBox.contains(new Point(ball.getX(),ball.getY()))) {
-				TR.add(ball);
-			}
-			
-			if(BR.boundingBox.contains(new Point(ball.getX(),ball.getY()))) {
-				BR.add(ball);
-			}
-			
-			if(BL.boundingBox.contains(new Point(ball.getX(),ball.getY()))) {
-				BL.add(ball);
-			}
-			
-		}else {
+	public static void add(BouncingBall ball, Node node) {
 
-			if(!this.subDivided) {
-			//subdividing
-			int x = (int)this.boundingBox.getX();
-			int y = (int)this.boundingBox.getY();
-			int width = (int)this.boundingBox.getWidth()/2;		
-			int height = (int)this.boundingBox.getHeight()/2;	
-			
-			TL = new Node(x,y,width,height);
-			x = x + width;
-			
-			TR = new Node(x, y, width,height);
-			y= y + height;
-			
-			BR = new Node(x,y,width,height);
-			
-			x = (int)this.boundingBox.getX();
-			BL = new Node(x,y,width,height);
-				
-			this.subDivided = true; 
-			}
-			
-			
-	
-			
+		if (node == null || !node.boundingBox.contains(ball.getX(), ball.getY())) {
+			return;
 		}
 
-		
-		
+		node.ballList.add(ball);
 
+		ball.boundingBox = node.boundingBox;
+
+		add(ball, node.TL);
+		add(ball, node.TR);
+		add(ball, node.BL);
+		add(ball, node.BR);
+	}
+
+	public static void addBranch(Node node) {
+
+		if (node == null) {
+			return;
+		}
+		if (node.TL == null) {
+
+			if (node.ballList.size() > BallAssignment.THRESHOLD) {
+				int x = (int) node.boundingBox.getX();
+				int y = (int) node.boundingBox.getY();
+				int width = (int) (node.boundingBox.getWidth() / 2);
+				int height = (int) (node.boundingBox.getHeight() / 2);
+
+				BallAssignment.drawBoundary.add(node);
+				node.TL = new Node(x, y, width, height);
+				node.TR = new Node(x + width, y, width, height);
+				node.BL = new Node(x, y + height, width, height);
+				node.BR = new Node(x + width, y + height, width, height);
+
+				for (int i = 0; i < node.ballList.size(); i++) {
+					BouncingBall ball = (BouncingBall) node.ballList.get(i);
+					add(ball, node.TL);
+					add(ball, node.TR);
+					add(ball, node.BL);
+					add(ball, node.BR);
+				}
+			}
+		} else {
+			addBranch(node.TL);
+			addBranch(node.TR);
+			addBranch(node.BL);
+			addBranch(node.BR);
+		}
+	}
+
+	public static void removeBranch() {
+		
+		for (int i = 0; i < BallAssignment.drawBoundary.size(); i++) {
+			Node node = BallAssignment.drawBoundary.get(i);
+			if (node != null) {
+				if (node.ballList.size() < BallAssignment.THRESHOLD) {
+					node.TL = null;
+					node.TR = null;
+					node.BL = null;
+					node.BR = null;
+
+				}
+			}
+		}
+	}
+
+	public static void draw(Node node) {		
+		if (node.TL == null || BallAssignment.drawBoundary.contains(node.TL)) {
+			return;
+		} else {
+			BallAssignment.drawBoundary.add(node.TL);
+			BallAssignment.drawBoundary.add(node.TR);
+			BallAssignment.drawBoundary.add(node.BL);
+			BallAssignment.drawBoundary.add(node.BR);
+			draw(node.TL);
+			draw(node.TR);
+			draw(node.BL);
+			draw(node.BR);
+		}
+	}
+
+	public static void removeBall(BouncingBall ball, Node node) {
+
+		if (node == null || !node.ballList.contains(ball)) {
+			return;
+		}
+		node.ballList.remove(ball);
+		removeBall(ball, node.TL);
+		removeBall(ball, node.TR);
+		removeBall(ball, node.BL);
+		removeBall(ball, node.BR);
+	}
+
+	public ArrayList<BouncingBall> getBallList() {
+		return ballList;
 	}
 	
-	public ArrayList<BouncingBall> getBallList() {
-		return ballList; 
+	public static void collisionDetection(Node node) {
+		if(node.TL == null) {
+			for(int i = 0; i<node.ballList.size(); i++) {
+				for(int j = i + 1; j<node.ballList.size(); j++) {
+					BouncingBall a = (BouncingBall) node.ballList.get(i);
+					BouncingBall b = (BouncingBall) node.ballList.get(j);
+					if(a.box.intersects(b.box)) {
+						a.moveHorizental();
+						b.moveVertical();				
+					}
+					
+				}
+			}
+			return;
+		}else {
+			collisionDetection(node.TL);
+			collisionDetection(node.TR);
+			collisionDetection(node.BL);
+			collisionDetection(node.BR);
+		}		
 	}
 
 }
