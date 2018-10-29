@@ -112,15 +112,15 @@ public class BallAssignment extends JFrame {
 			for (int i = 0; i < root.getBallList().size(); i++) {
 
 				// collision // how to do direction
-
 				////////////// Put in where???
 				if (root.getBallList().get(i).getX() >= screenX - root.getBallList().get(i).getRadius() * 2) {
-					root.getBallList().get(i).moveHorizental();
+					root.getBallList().get(i).moveHorizontal();
+
 				} else if (root.getBallList().get(i).getY() >= screenY - root.getBallList().get(i).getRadius() * 2) {
 					root.getBallList().get(i).moveVertical();
 
 				} else if (root.getBallList().get(i).getX() <= 0 + root.getBallList().get(i).getRadius() * 2) {
-					root.getBallList().get(i).moveHorizental();
+					root.getBallList().get(i).moveHorizontal();
 
 				} else if (root.getBallList().get(i).getY() <= 0 + root.getBallList().get(i).getRadius() * 2) {
 					root.getBallList().get(i).moveVertical();
@@ -137,11 +137,14 @@ public class BallAssignment extends JFrame {
 
 			}
 
-
-		Node.collisionDetection(root);
+			Node.collisionDetection(root);
 			
 
 			// Repaint
+			/*
+			 * try { Thread.sleep(100); }catch(Exception e) {}
+			 */
+			
 			repaint();
 
 		} // End of paintComponent
@@ -164,7 +167,7 @@ public class BallAssignment extends JFrame {
 		public void keyReleased(KeyEvent e) {
 
 			if (e.getKeyCode() == KeyEvent.VK_A) {
-				addBalls(10000);
+				addBalls(100);
 			}
 
 		}

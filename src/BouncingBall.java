@@ -7,7 +7,8 @@ public class BouncingBall {
 
 	private int x;
 	private int y;
-	private int speed;
+	private int speedX;
+	private int speedY;
 	private int directionX; // 1 for left, 2 for right
 	private int directionY; // 1 for up, 2 for down
 	private int radius = 5; // constant
@@ -19,10 +20,20 @@ public class BouncingBall {
 	BouncingBall() {
 		x = rand.nextInt(BallAssignment.screenX);
 		y = rand.nextInt(BallAssignment.screenY);
-		speed = rand.nextInt(2) + 1;
-		directionX = rand.nextInt(1) - 1;
-		directionY = rand.nextInt(1) - 1;
-		box = new Rectangle(x,y,radius*2,radius*2);
+
+		speedX = rand.nextInt(5) + 1;
+		speedY = rand.nextInt(5) + 1;
+
+		directionX = rand.nextInt(2) - 1;
+		directionY = rand.nextInt(2) - 1;
+		
+		if (directionX == 0) {
+			directionX = 1;
+		} else if (directionY == 0) {
+			directionY = 1;
+		}
+
+		box = new Rectangle(x, y, radius * 2, radius * 2);
 	}
 
 	public int getX() {
@@ -33,10 +44,6 @@ public class BouncingBall {
 		return y;
 	}
 
-	public int getSpeed() {
-		return speed;
-	}
-
 	public int getDirectonX() {
 		return directionX;
 	}
@@ -45,7 +52,7 @@ public class BouncingBall {
 		return directionY;
 	}
 
-	public void moveHorizental() {
+	public void moveHorizontal() {
 		directionX = directionX * -1;
 	}
 
@@ -54,15 +61,21 @@ public class BouncingBall {
 	}
 
 	public void move() {
-		this.x = x + (directionX * speed);
-		this.box.x = x + (directionX * speed);
-		
-		this.y = y + (directionY * speed);	
-		this.box.y = y + (directionX * speed);
+		this.x = x + (directionX * speedX);
+		this.box.x = x + (directionX * speedX);
+
+		this.y = y + (directionY * speedY);
+		this.box.y = y + (directionX * speedY);
+	}
+
+	public void bounce() {
+
 	}
 
 	public int getRadius() {
 		return radius;
 	}
 	
+
+
 }

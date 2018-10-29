@@ -39,19 +39,16 @@ public class Node<T> {
 	}
 
 	public static void addBranch(Node node) {
-
 		if (node == null) {
 			return;
 		}
 		if (node.TL == null) {
-
 			if (node.ballList.size() > BallAssignment.THRESHOLD) {
 				int x = (int) node.boundingBox.getX();
 				int y = (int) node.boundingBox.getY();
 				int width = (int) (node.boundingBox.getWidth() / 2);
 				int height = (int) (node.boundingBox.getHeight() / 2);
 
-				BallAssignment.drawBoundary.add(node);
 				node.TL = new Node(x, y, width, height);
 				node.TR = new Node(x + width, y, width, height);
 				node.BL = new Node(x, y + height, width, height);
@@ -73,8 +70,7 @@ public class Node<T> {
 		}
 	}
 
-	public static void removeBranch() {
-		
+	public static void removeBranch() {		
 		for (int i = 0; i < BallAssignment.drawBoundary.size(); i++) {
 			Node node = BallAssignment.drawBoundary.get(i);
 			if (node != null) {
@@ -83,7 +79,6 @@ public class Node<T> {
 					node.TR = null;
 					node.BL = null;
 					node.BR = null;
-
 				}
 			}
 		}
@@ -127,10 +122,9 @@ public class Node<T> {
 					BouncingBall a = (BouncingBall) node.ballList.get(i);
 					BouncingBall b = (BouncingBall) node.ballList.get(j);
 					if(a.box.intersects(b.box)) {
-						a.moveHorizental();
-						b.moveVertical();				
-					}
-					
+						a.moveVertical();
+						b.moveVertical();
+					}				
 				}
 			}
 			return;
