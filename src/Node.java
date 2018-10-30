@@ -106,7 +106,7 @@ public class Node<T> {
 	 */
 	public static void add(BouncingBall ball, Node<BouncingBall> node) {
 
-		//return if the node is null or the node doesnt contain the ball
+		//return if the node is null or the node doesn't contain the ball
 		if (node == null || !node.boundingBox.contains(ball.getX(), ball.getY())) {
 			return;
 		}

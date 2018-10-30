@@ -9,6 +9,7 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -26,6 +27,7 @@ public class BallAssignment extends JFrame {
 	public static int screenX = (int) screenSize.getWidth();
 	public static int screenY = (int) screenSize.getHeight();
 
+
 	public static ArrayList<Node<BouncingBall>> drawBoundary = new ArrayList<Node<BouncingBall>>();
 
 	FrameRate frameRate = new FrameRate();
@@ -34,6 +36,7 @@ public class BallAssignment extends JFrame {
 		System.out.println(screenX);
 		System.out.println(screenY);
 
+		
 		root = new Node<BouncingBall>(0, 0, screenX, screenY);
 		drawBoundary.add(root);
 		window = new BallAssignment();
@@ -52,8 +55,8 @@ public class BallAssignment extends JFrame {
 
 		// Set the frame to full screen
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(Toolkit.getDefaultToolkit().getScreenSize().width,
-				Toolkit.getDefaultToolkit().getScreenSize().height + 15);
+		this.setSize(1280,800);
+		//this.setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
 		this.setResizable(false);
 
 		// Set up the game panel
@@ -87,6 +90,7 @@ public class BallAssignment extends JFrame {
 			// CHECK FOR COLLISION
 
 			frameRate.update();
+			frameRate.draw(g, 50, 50);
 
 			drawBoundary.clear();
 			Node.draw(root);
@@ -103,38 +107,50 @@ public class BallAssignment extends JFrame {
 			g.setColor(Color.BLACK);
 
 			for (int i = 0; i < root.getBallList().size(); i++) {
-				int x = root.getBallList().get(i).getX() - root.getBallList().get(i).getRadius();
-				int y = root.getBallList().get(i).getY() - root.getBallList().get(i).getRadius();
+				double x = root.getBallList().get(i).getX() - root.getBallList().get(i).getRadius();
+				double y = root.getBallList().get(i).getY() - root.getBallList().get(i).getRadius();
 				int width = root.getBallList().get(i).getRadius() * 2;
 				int height = root.getBallList().get(i).getRadius() * 2;
 
-				g.fillOval(x, y, width, height);
+				g.fillOval((int) x, (int) y, width, height);
 			}
 
 			// moves the balls
 			BouncingBall.collisionDetection(root);
 
-			//bounce off if collided with screen borders 
+			// bounce off if collided with screen borders
+			g.fillOval(4, 50, 10, 10);
 			for (int i = 0; i < root.getBallList().size(); i++) {
-
-				if (root.getBallList().get(i).getX() >= screenX - root.getBallList().get(i).getRadius() * 2) {
-					root.getBallList().get(i).moveHorizontal();
-
-				} else if (root.getBallList().get(i).getY() >= screenY - root.getBallList().get(i).getRadius() * 2) {
-					root.getBallList().get(i).moveVertical();
-
-				} else if (root.getBallList().get(i).getX() <= 0 + root.getBallList().get(i).getRadius() * 2) {
-					root.getBallList().get(i).moveHorizontal();
-
-				} else if (root.getBallList().get(i).getY() <= 0 + root.getBallList().get(i).getRadius() * 2) {
-					root.getBallList().get(i).moveVertical();
-				}
-
-				root.getBallList().get(i).move();
 
 				BouncingBall ball = root.getBallList().get(i);
 
-				//if the ball has left the quadrant update the quadrants ball list
+				if ((root.getBallList().get(i).getX() >= screenX - 10) && (root.getBallList().get(i).getSpeedX() > 0)) {
+
+					root.getBallList().get(i).moveHorizontal();
+					root.getBallList().get(i).setX(screenX - 10);
+				}
+				
+				if ((root.getBallList().get(i).getY() >= screenY - 30) && (root.getBallList().get(i).getSpeedY() > 0)) {
+					
+					root.getBallList().get(i).moveVertical();
+					root.getBallList().get(i).setY(screenY - 30);
+				}
+				if ((root.getBallList().get(i).getX() <= 4) && (root.getBallList().get(i).getSpeedX() < 0)) {
+					
+					root.getBallList().get(i).moveHorizontal();
+					root.getBallList().get(i).setX(4);
+				}
+				if ((root.getBallList().get(i).getY() <= 4) && (root.getBallList().get(i).getSpeedY() < 0)) {
+					
+					root.getBallList().get(i).moveVertical();
+					root.getBallList().get(i).setY(4);
+				}
+				
+							
+
+				root.getBallList().get(i).move();
+
+				// if the ball has left the quadrant update the quadrants ball list
 				if (!ball.boundingBox.contains(ball.getX(), ball.getY())) {
 					Node.removeBall(ball, root);
 					Node.add(ball, root);
