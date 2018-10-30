@@ -1,139 +1,243 @@
-import java.awt.Point;
+
+/**
+ * [Node.java]
+ * Class creating and making changes to the quad tree
+ * Authors: Jason Wang 
+ * October 22, 2018
+ */
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public class Node<T> {
 
-	private Node<T> TL;
-	private Node<T> TR;
-	private Node<T> BL;
-	private Node<T> BR;
+	private Node<T> TL; //top left
+	private Node<T> TR; //top right
+	private Node<T> BL; //bottom left
+	private Node<T> BR; //bottom right
 	ArrayList<BouncingBall> ballList;
 	Rectangle boundingBox;
-	public static boolean subDivided;
 
 	public Node(int x, int y, int width, int height) {
-		this.TL = null;
-		this.TR = null;
-		this.BL = null;
-		this.BR = null;
-		ballList = new ArrayList();
+		this.setTL(null);
+		this.setTR(null);
+		this.setBL(null);
+		this.setBR(null);
+		ballList = new ArrayList<BouncingBall>();
 		boundingBox = new Rectangle(x, y, width, height);
-		subDivided = false;
 	}
 
-	public static void add(BouncingBall ball, Node node) {
+	/**
+	 * getTL 
+	 * This method returns the top left child node
+	 * @return TL, the top left node
+	 */
+	public Node<T> getTL() {
+		return TL;
+	}
 
+	/**
+	 * setTL
+	 * This method sets the top left child node
+	 * @param TL, the node to set it to
+	 */
+	public void setTL(Node<T> tL) {
+		TL = tL;
+	}
+
+	/**
+	 * getTR
+	 * This method returns the top right child node
+	 * @return TR, the top right node
+	 */
+	public Node<T> getTR() {
+		return TR;
+	}
+
+	/**
+	 * setTR
+	 * This method sets the top right child node
+	 * @param TR, the node to set it to
+	 */
+	public void setTR(Node<T> tR) {
+		TR = tR;
+	}
+
+	/**
+	 * getBL
+	 * This method returns the bottom left child node
+	 * @return BL, the bottom left node
+	 */
+	public Node<T> getBL() {
+		return BL;
+	}
+
+	/**
+	 * setBL
+	 * This method sets the bottom left child node
+	 * @param BL, the node to set it to
+	 */
+	public void setBL(Node<T> bL) {
+		BL = bL;
+	}
+
+	/**
+	 * getBR
+	 * This method returns the bottom right child node
+	 * @return BR, the bottom right node
+	 */
+	public Node<T> getBR() {
+		return BR;
+	}
+
+	/**
+	 * setBR
+	 * This method sets the bottom right child node
+	 * @param BR, the node to set it to
+	 */
+	public void setBR(Node<T> bR) {
+		BR = bR;
+	}
+
+	/**
+	 * add
+	 * This method is for adding balls into the proper ball array lists in the quadtree
+	 * @param ball, the ball that is being added
+	 * @param node, the initial node that it's basing off of
+	 */
+	public static void add(BouncingBall ball, Node<BouncingBall> node) {
+
+		//return if the node is null or the node doesnt contain the ball
 		if (node == null || !node.boundingBox.contains(ball.getX(), ball.getY())) {
 			return;
 		}
 
+		//add balls to the list
 		node.ballList.add(ball);
 
+		//changing the balls set block its in to the bounding box of the node
 		ball.boundingBox = node.boundingBox;
 
-		add(ball, node.TL);
-		add(ball, node.TR);
-		add(ball, node.BL);
-		add(ball, node.BR);
+		//recursively go to all of the children nodes
+		add(ball, node.getTL());
+		add(ball, node.getTR());
+		add(ball, node.getBL());
+		add(ball, node.getBR());
 	}
 
-	public static void addBranch(Node node) {
+	/**
+	 * addBranch
+	 * This method is for adding branches in to the quad tree
+	 * @param node, the previous/initial node in the tree 
+	 */
+	public static void addBranch(Node<BouncingBall> node) {
 		if (node == null) {
 			return;
 		}
-		if (node.TL == null) {
+		if (node.getTL() == null) {
+			//check if there are more balls in this part than the threshold
 			if (node.ballList.size() > BallAssignment.THRESHOLD) {
 				int x = (int) node.boundingBox.getX();
 				int y = (int) node.boundingBox.getY();
 				int width = (int) (node.boundingBox.getWidth() / 2);
 				int height = (int) (node.boundingBox.getHeight() / 2);
 
-				node.TL = new Node(x, y, width, height);
-				node.TR = new Node(x + width, y, width, height);
-				node.BL = new Node(x, y + height, width, height);
-				node.BR = new Node(x + width, y + height, width, height);
+				//subdivide and create new nodes to contain these balls
+				node.setTL(new Node<BouncingBall>(x, y, width, height));
+				node.setTR(new Node<BouncingBall>(x + width, y, width, height));
+				node.setBL(new Node<BouncingBall>(x, y + height, width, height));
+				node.setBR(new Node<BouncingBall>(x + width, y + height, width, height));
 
+				//add the balls into the newly created sections of the tree
 				for (int i = 0; i < node.ballList.size(); i++) {
 					BouncingBall ball = (BouncingBall) node.ballList.get(i);
-					add(ball, node.TL);
-					add(ball, node.TR);
-					add(ball, node.BL);
-					add(ball, node.BR);
+					add(ball, node.getTL());
+					add(ball, node.getTR());
+					add(ball, node.getBL());
+					add(ball, node.getBR());
 				}
 			}
 		} else {
-			addBranch(node.TL);
-			addBranch(node.TR);
-			addBranch(node.BL);
-			addBranch(node.BR);
+			//recursively go to the next nodes in the tree
+			addBranch(node.getTL());
+			addBranch(node.getTR());
+			addBranch(node.getBL());
+			addBranch(node.getBR());
 		}
 	}
 
-	public static void removeBranch() {		
+	/**
+	 * removeBranch
+	 * This method is for removing branches in the quad tree
+	 * @param node, the previous/initial node in the tree 
+	 */
+	public static void removeBranch() {
+		//go through all of the different nodes/boxes that exist
 		for (int i = 0; i < BallAssignment.drawBoundary.size(); i++) {
-			Node node = BallAssignment.drawBoundary.get(i);
+			Node<BouncingBall> node = BallAssignment.drawBoundary.get(i);
 			if (node != null) {
+				//if the list has less balls than the threshold remove it's children nodes
 				if (node.ballList.size() < BallAssignment.THRESHOLD) {
-					node.TL = null;
-					node.TR = null;
-					node.BL = null;
-					node.BR = null;
+					node.setTL(null);
+					node.setTR(null);
+					node.setBL(null);
+					node.setBR(null);
 				}
 			}
 		}
 	}
 
-	public static void draw(Node node) {		
-		if (node.TL == null || BallAssignment.drawBoundary.contains(node.TL)) {
+	/**
+	 * draw
+	 * This method is for determining what needs to be drawn
+	 * @param node, the previous/initial node in the tree 
+	 */
+	public static void draw(Node<BouncingBall> node) {
+		//if there are no more children of the node or the current node contains the next node then return
+		if (node.getTL() == null || BallAssignment.drawBoundary.contains(node.getTL())) {
 			return;
 		} else {
-			BallAssignment.drawBoundary.add(node.TL);
-			BallAssignment.drawBoundary.add(node.TR);
-			BallAssignment.drawBoundary.add(node.BL);
-			BallAssignment.drawBoundary.add(node.BR);
-			draw(node.TL);
-			draw(node.TR);
-			draw(node.BL);
-			draw(node.BR);
+			//add the children nodes 
+			BallAssignment.drawBoundary.add(node.getTL());
+			BallAssignment.drawBoundary.add(node.getTR());
+			BallAssignment.drawBoundary.add(node.getBL());
+			BallAssignment.drawBoundary.add(node.getBR());
+			//recursively go to the children of the node
+			draw(node.getTL());
+			draw(node.getTR());
+			draw(node.getBL());
+			draw(node.getBR());
 		}
 	}
 
-	public static void removeBall(BouncingBall ball, Node node) {
+	/**
+	 * removeBall
+	 * This method is for removing the ball once it leaves a quadrant
+	 * @param ball, the ball that is being removed
+	 * @param node, the previous/initial node in the tree 
+	 */
+	public static void removeBall(BouncingBall ball, Node<BouncingBall> node) {
 
+		//if the node is null or it doesn't contain the ball then return
 		if (node == null || !node.ballList.contains(ball)) {
 			return;
 		}
+
+		//remove the ball from the current node's array list
 		node.ballList.remove(ball);
-		removeBall(ball, node.TL);
-		removeBall(ball, node.TR);
-		removeBall(ball, node.BL);
-		removeBall(ball, node.BR);
+		//go the the next nodes to also remove the ball from there
+		removeBall(ball, node.getTL());
+		removeBall(ball, node.getTR());
+		removeBall(ball, node.getBL());
+		removeBall(ball, node.getBR());
 	}
 
+	/**
+	 * getBallList
+	 * This method is for returning the ball list
+	 * return ballList, list of balls contain in a node
+	 */
 	public ArrayList<BouncingBall> getBallList() {
 		return ballList;
-	}
-	
-	public static void collisionDetection(Node node) {
-		if(node.TL == null) {
-			for(int i = 0; i<node.ballList.size(); i++) {
-				for(int j = i + 1; j<node.ballList.size(); j++) {
-					BouncingBall a = (BouncingBall) node.ballList.get(i);
-					BouncingBall b = (BouncingBall) node.ballList.get(j);
-					if(a.box.intersects(b.box)) {
-						a.moveVertical();
-						b.moveVertical();
-					}				
-				}
-			}
-			return;
-		}else {
-			collisionDetection(node.TL);
-			collisionDetection(node.TR);
-			collisionDetection(node.BL);
-			collisionDetection(node.BR);
-		}		
 	}
 
 }

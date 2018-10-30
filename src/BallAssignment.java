@@ -1,3 +1,11 @@
+
+/**
+ * [BallAssignment.java]
+ * Class creating the game window and updating it
+ * Authors: Jason Wang 
+ * October 22, 2018
+ */
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -5,8 +13,6 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.Random;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -20,21 +26,22 @@ public class BallAssignment extends JFrame {
 	public static int screenX = (int) screenSize.getWidth();
 	public static int screenY = (int) screenSize.getHeight();
 
-	public static ArrayList<Node> drawBoundary = new ArrayList();
+	public static ArrayList<Node<BouncingBall>> drawBoundary = new ArrayList<Node<BouncingBall>>();
+
+	FrameRate frameRate = new FrameRate();
 
 	public static void main(String[] args) {
 		System.out.println(screenX);
 		System.out.println(screenY);
 
-		root = new Node(0, 0, screenX, screenY);
+		root = new Node<BouncingBall>(0, 0, screenX, screenY);
 		drawBoundary.add(root);
 		window = new BallAssignment();
 	}
 
 	public void addBalls(int balls) {
-
 		for (int i = 0; i < balls; i++) {
-			root.add(new BouncingBall(), root);
+			Node.add(new BouncingBall(), root);
 		}
 
 	}
@@ -67,10 +74,6 @@ public class BallAssignment extends JFrame {
 	// Inner class for game area (DRAWING HERE)
 	private class GameAreaPanel extends JPanel {
 
-		// Declare variables
-		int direction;
-		Random rand = new Random();
-
 		public void paintComponent(Graphics g) {
 
 			// Call the super class
@@ -83,22 +86,23 @@ public class BallAssignment extends JFrame {
 
 			// CHECK FOR COLLISION
 
+			frameRate.update();
+
 			drawBoundary.clear();
 			Node.draw(root);
 
-			// Draw
+			// Draw the quadrants
 			for (int i = 0; i < drawBoundary.size(); i++) {
-				Node a = drawBoundary.get(i);
+				Node<BouncingBall> a = drawBoundary.get(i);
 
 				g.setColor(Color.BLACK);
 				g.drawRect(a.boundingBox.x, a.boundingBox.y, a.boundingBox.width, a.boundingBox.height);
 
 			}
-			// Draw all squares
+			// Draw the balls
 			g.setColor(Color.BLACK);
 
 			for (int i = 0; i < root.getBallList().size(); i++) {
-
 				int x = root.getBallList().get(i).getX() - root.getBallList().get(i).getRadius();
 				int y = root.getBallList().get(i).getY() - root.getBallList().get(i).getRadius();
 				int width = root.getBallList().get(i).getRadius() * 2;
@@ -108,11 +112,11 @@ public class BallAssignment extends JFrame {
 			}
 
 			// moves the balls
+			BouncingBall.collisionDetection(root);
 
+			//bounce off if collided with screen borders 
 			for (int i = 0; i < root.getBallList().size(); i++) {
 
-				// collision // how to do direction
-				////////////// Put in where???
 				if (root.getBallList().get(i).getX() >= screenX - root.getBallList().get(i).getRadius() * 2) {
 					root.getBallList().get(i).moveHorizontal();
 
@@ -130,6 +134,7 @@ public class BallAssignment extends JFrame {
 
 				BouncingBall ball = root.getBallList().get(i);
 
+				//if the ball has left the quadrant update the quadrants ball list
 				if (!ball.boundingBox.contains(ball.getX(), ball.getY())) {
 					Node.removeBall(ball, root);
 					Node.add(ball, root);
@@ -137,14 +142,11 @@ public class BallAssignment extends JFrame {
 
 			}
 
-			Node.collisionDetection(root);
-			
+//			try {
+//				Thread.sleep(100);
+//			} catch (Exception e) {
+//			}
 
-			// Repaint
-			/*
-			 * try { Thread.sleep(100); }catch(Exception e) {}
-			 */
-			
 			repaint();
 
 		} // End of paintComponent
@@ -154,8 +156,6 @@ public class BallAssignment extends JFrame {
 
 		@Override
 		public void keyTyped(KeyEvent e) {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -167,7 +167,7 @@ public class BallAssignment extends JFrame {
 		public void keyReleased(KeyEvent e) {
 
 			if (e.getKeyCode() == KeyEvent.VK_A) {
-				addBalls(100);
+				addBalls(10);
 			}
 
 		}
