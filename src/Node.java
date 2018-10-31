@@ -135,7 +135,7 @@ public class Node<T> {
 		}
 		if (node.getTL() == null) {
 			//check if there are more balls in this part than the threshold
-			if (node.ballList.size() > BallAssignment.THRESHOLD) {
+			if (node.ballList.size() >= BallAssignment.THRESHOLD) {
 				int x = (int) node.boundingBox.getX();
 				int y = (int) node.boundingBox.getY();
 				int width = (int) (node.boundingBox.getWidth() / 2);
