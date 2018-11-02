@@ -30,7 +30,7 @@ public class BallAssignment extends JFrame {
 	public static ArrayList<Node<BouncingBall>> drawBoundary = new ArrayList<Node<BouncingBall>>();
 
 	public static void main(String[] args) {
-		
+
 		root = new Node<BouncingBall>(0, 0, screenX, screenY);
 		drawBoundary.add(root);
 		window = new BallAssignment();
@@ -106,7 +106,7 @@ public class BallAssignment extends JFrame {
 			// Bounce off if collided with screen borders
 			for (int i = 0; i < root.getBallList().size(); i++) {
 
-				BouncingBall ball =  root.getBallList().get(i);
+				BouncingBall ball = root.getBallList().get(i);
 
 				if ((ball.getX() >= screenX - 10) && (ball.getSpeedX() > 0)) {
 					ball.moveHorizontal();
@@ -125,6 +125,7 @@ public class BallAssignment extends JFrame {
 					ball.setY(4);
 				}
 
+				
 				ball.move();
 
 				// if the ball has left the quadrant update the quadrants ball list
@@ -135,18 +136,18 @@ public class BallAssignment extends JFrame {
 
 			}
 			
+
 			//slow down the program for testing purposes(uncommon if needed)
-			//			try {
-			//			Thread.sleep(10);
-			//		} catch (Exception e) {
-			//		}
+/*						try {
+				Thread.sleep(100);
+			} catch (Exception e) {
+			}*/
 
 			repaint();
 
 		} // End of paintComponent
 	}// End of GameAreaPanel
 
-	
 	/**
 	 * [MyKeyListener.java]
 	 * Class tracking keyboard 
@@ -172,9 +173,12 @@ public class BallAssignment extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			//if space is pressed add ball
-	        if(e.getKeyCode()==KeyEvent.VK_SPACE){
-				Node.add(new BouncingBall(), root);
-	         }
+			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+
+				for (int i = 0; i < 5; i++) {
+					Node.add(new BouncingBall(), root);
+				}
+			}
 		}
 
 	}

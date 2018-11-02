@@ -2,8 +2,10 @@ import java.awt.Rectangle;
 import java.util.Random;
 
 /**
- * [BouncingBall.java] Class for the bouncing balls generated Authors: Jason
- * Wang October 22, 2018
+ * [BouncingBall.java] 
+ * Class for the bouncing balls generated 
+ * Author: Jason wang
+ * October 22, 2018
  */
 public class BouncingBall {
 
@@ -24,7 +26,6 @@ public class BouncingBall {
 	private static double nvy1, nvx1, nvy2, nvx2;
 
 	Random rand = new Random();
-	public Rectangle box; // bouncing box for the ball
 	public Rectangle boundingBox;
 
 	BouncingBall() {
@@ -50,8 +51,6 @@ public class BouncingBall {
 		speedX = speedX * directionX;
 		speedY = speedY * directionY;
 
-		//bounding box for the acutal ball itself
-		box = new Rectangle((int) x, (int) y, RADIUS * 2, RADIUS * 2);
 	}
 
 	/**
@@ -79,7 +78,6 @@ public class BouncingBall {
 	public double getY() {
 		return y;
 	}
-
 
 	/**
 	 * setY This method sets the speed
@@ -144,11 +142,15 @@ public class BouncingBall {
 	 * speed and direction
 	 */
 	public void move() {
-		this.x = (int) (x + speedX);
-		this.box.x = (int) (x + speedX);
+			//move the balls so it doesn't leave the screen
+		   this.x = this.x +  this.speedX;
+		   this.x = Math.max(this.x, 1);
+		   this.x = Math.min(this.x, BallAssignment.screenX - 2);
 
-		this.y = (int) (y + speedY);
-		this.box.y = (int) (y + speedY);
+			//move the balls so it doesnt leave the screen
+		   this.y = this.y  + this.speedY;
+		   this.y = Math.max(this.y, 1);
+		   this.y = Math.min(this.y, BallAssignment.screenY - 2);
 	}
 
 	/**
@@ -160,25 +162,21 @@ public class BouncingBall {
 	 */
 	public static void bounce(BouncingBall a, BouncingBall b) {
 
-		//Calculate distance between the two 
-		deltaX = a.getX() - b.getX();
-		deltaY = a.getY() - b.getY();
-		distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-		moveDistanceX = deltaX * (a.getRadius() + b.getRadius() - distance) / distance;
-		moveDistanceY = deltaY * (a.getRadius() + b.getRadius() - distance) / distance;
+		//calucate distance need to move to avoid double collision
+		moveDistanceX = deltaX * (a.RADIUS + b.RADIUS - distance) / distance;
+		moveDistanceY = deltaY * (a.RADIUS + b.RADIUS - distance) / distance;
 
 		//move balls away a certain distance so they don't double collide
-		a.setX(a.getX() + moveDistanceX * 0.5);
-		a.setY(a.getY() + moveDistanceY * 0.5);
-		b.setX(b.getX() - moveDistanceX * 0.5);
-		b.setY(b.getY() - moveDistanceY * 0.5);
+		a.x = a.x + moveDistanceX * 0.5;
+		a.y = a.y + moveDistanceY * 0.5;
+		b.x = b.x - moveDistanceX * 0.5;
+		b.y = b.y - moveDistanceY * 0.5;
 
 		//Calculate angle
-		angle1 = Math.atan((a.getSpeedY() / a.getSpeedX()));
-		angle2 = Math.atan((b.getSpeedY() / a.getSpeedY()));
-		s1 = Math.sqrt(a.getSpeedY() * a.getSpeedY() + a.getSpeedX() * a.getSpeedX());
-		s2 = Math.sqrt(b.getSpeedY() * b.getSpeedY() + b.getSpeedX() * b.getSpeedX());
+		angle1 = Math.atan((a.speedY / a.speedX));
+		angle2 = Math.atan((b.speedY / a.speedY));
+		s1 = Math.sqrt(a.speedY * a.speedY + a.speedX * a.speedX);
+		s2 = Math.sqrt(b.speedY * b.speedY + b.speedX * b.speedX);
 
 		//Calculate new velocity based of angle
 		nvy1 = s1 * Math.sin(angle2);
@@ -186,24 +184,26 @@ public class BouncingBall {
 		nvy2 = s2 * Math.sin(angle1);
 		nvx2 = s2 * Math.cos(angle1);
 
-		if ((a.getSpeedY() > 0 && nvy2 < 0) || (a.getSpeedY() < 0 && nvy2 > 0)) {
+		if ((a.speedY > 0 && nvy2 < 0) || (a.speedY < 0 && nvy2 > 0)) {
 			nvy2 = nvy2 * -1;
 		}
-		if ((a.getSpeedX() > 0 && nvx2 < 0) || (a.getSpeedX() < 0 && nvx2 > 0)) {
+		if ((a.speedX > 0 && nvx2 < 0) || (a.speedX < 0 && nvx2 > 0)) {
 			nvx2 = nvx2 * -1;
 		}
-		if ((b.getSpeedY() > 0 && nvy1 < 0) || (b.getSpeedY() < 0 && nvy1 > 0)) {
+		if ((b.speedY > 0 && nvy1 < 0) || (b.speedY < 0 && nvy1 > 0)) {
 			nvy1 = nvy1 * -1;
 		}
 		if ((b.getSpeedX() > 0 && nvx1 < 0) || (b.getSpeedX() < 0 && nvx1 > 0)) {
 			nvx1 = nvx1 * -1;
 		}
 
-		//set new velocities
-		a.setSpeedX(nvx1);
-		a.setSpeedY(nvy1);
-		b.setSpeedX(nvx2);
-		b.setSpeedY(nvy2);
+		//set new velocities(speed)
+		a.speedX = nvx1;
+		a.speedY = nvy1;
+		b.speedX = nvx2;
+		b.speedY = nvy2;
+		
+	
 
 	}
 
@@ -229,9 +229,13 @@ public class BouncingBall {
 				for (int j = i + 1; j < node.ballList.size(); j++) {
 					BouncingBall a = (BouncingBall) node.ballList.get(i);
 					BouncingBall b = (BouncingBall) node.ballList.get(j);
+					//calucate the distance between the balls;
+					deltaX = a.x - b.x;
+					deltaY = a.y - b.y;
+					distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 					// if the balls intersect bounce them
-					if (a.box.intersects(b.box)) {
-						BouncingBall.bounce(a, b);
+					if (distance <= a.RADIUS + b.RADIUS) {
+						BouncingBall.bounce(a, b); 
 					}
 				}
 			}
